@@ -206,7 +206,7 @@ class Bosses extends PluginBase {
                                 new Input("minionspawnseconds", "Minion spawn countdown(seconds) [If minions are disabled you don't need to complete this]", "60", "60"),
                                 new Toggle("isalwaysaggressive", "Is always aggressive", true),
                                 new Toggle("eyeaggressive", "Is it being aggressive when player looks his eyes", true),
-                                new Label("drops", "Boss and minion's drops is configurable in config.yml"),
+                                new Label("drops", "Boss and minion's drops are configurable in config.yml"),
                                 new Toggle("spawnnow", "Spawn now?")
                             ],
                             function(Player $player, CustomFormResponse $response): void {
@@ -327,7 +327,7 @@ class Bosses extends PluginBase {
                                         new Input("minionspawnseconds", "Minion spawn countdown(seconds) [If minions are disabled you don't need to complete this]", "60", $attributes->minionSpawnTickAmount/20),
                                         new Toggle("isalwaysaggressive", "Is always aggressive", $attributes->isAlwaysAggressive),
                                         new Toggle("eyeaggressive", "Is it being aggressive when player looks his eyes", $attributes->eyeAggressive),
-                                        new Label("drops", "Boss and minions' drops is configurable in config.yml")
+                                        new Label("drops", "Boss and minions' drops are configurable in config.yml")
                                     ],
                                     function(Player $player, CustomFormResponse $response) use ($boss): void {
                                         $inc = false;
