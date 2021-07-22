@@ -68,7 +68,6 @@ use pocketmine\command\CommandSender;
 use pocketmine\entity\Entity;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
-use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
@@ -232,7 +231,7 @@ class Bosses extends PluginBase {
                                     "drops" => [],
                                     "minionDrops" => []
                                 ]);
-                                $entity = Entity::createEntity(self::$bossSaves[$response->getInt("type")], $player->level, Entity::createBaseNBT($player));
+                                $entity = Entity::createEntity(self::$bossSaves[array_keys(self::$bossSaves)[$response->getInt("type")]], $player->level, Entity::createBaseNBT($player));
                                 if(!$entity instanceof BossEntity) return;
                                 $entity->isNew = true;
                                 $id = floor(microtime(true));
@@ -365,7 +364,7 @@ class Bosses extends PluginBase {
                                         $autoSpawn = strlen($response->getString("seconds")) < 1 || !is_numeric($response->getString("seconds")) ? null : (float)$response->getString("seconds")*20;
                                         $l = [
                                             "id" => $boss["id"],
-                                            "type" => self::$bossSaves[$response->getInt("type")],
+                                            "type" => self::$bossSaves[array_keys(self::$bossSaves)[$response->getInt("type")]],
                                             "attributes" => $attributes->toArray(),
                                             "nametag" => $response->getString("nametag"),
                                             "nametagvisible" => $response->getBool("nametagvisible"),
@@ -393,7 +392,7 @@ class Bosses extends PluginBase {
                                                 "scale" => (float)$response->getString("scale"),
                                                 "health" => (float)$response->getString("health"),
                                                 "maxHealth" => (float)$response->getString("maxhealth"),
-                                                "name" => self::$bossSaves[$response->getInt("type")],
+                                                "name" => self::$bossSaves[array_keys(self::$bossSaves)[$response->getInt("type")]],
                                                 "position" => $this->tasks[$boss["id"]]->info["position"],
                                                 "ticks" => $autoSpawn,
                                                 "entity" => $this->tasks[$boss["id"]]->info["entity"],
