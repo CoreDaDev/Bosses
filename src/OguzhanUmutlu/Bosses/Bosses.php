@@ -148,8 +148,8 @@ class Bosses extends PluginBase {
             $attributes = BossAttributes::fromArray($boss["attributes"]);
             if(!$this->getServer()->isLevelLoaded($boss["position"]["level"]))
                 $this->getServer()->loadLevel($boss["position"]["level"]);
-            if($this->getServer()->getLevelByName($boss["position"]["level"]) instanceof Level)
-                new BossTask($attributes, $boss["scale"], $boss["health"], $boss["maxHealth"], $boss["name"], new Position($boss["position"]["x"], $boss["position"]["y"], $boss["position"]["z"], $this->getServer()->getLevelByName($boss["position"]["level"])), $boss["ticks"], null, $boss["id"]);
+            if($this->getServer()->getLevelByName($boss["position"]["level"]) instanceof Level && $boss["autospawn"])
+                new BossTask($attributes, $boss["scale"], $boss["health"], $boss["maxHealth"], $boss["name"], new Position($boss["position"]["x"], $boss["position"]["y"], $boss["position"]["z"], $this->getServer()->getLevelByName($boss["position"]["level"])), $boss["autospawn"], null, $boss["id"]);
         }
     }
     /*** @var BossEntity */
@@ -231,7 +231,7 @@ class Bosses extends PluginBase {
                                     "drops" => [],
                                     "minionDrops" => []
                                 ]);
-                                $entity = Entity::createEntity(array_keys(self::$bossSaves)[$response->getInt("type")], $player->level, Entity::createBaseNBT($player));
+                                $entity = Entity::createEntity(array_keys(self::$bossSaves)[$response->getInt("type")], $player->level, Entity::createBaseNBT($player), $attributes);
                                 if(!$entity instanceof BossEntity) return;
                                 $entity->isNew = true;
                                 $id = floor(microtime(true));

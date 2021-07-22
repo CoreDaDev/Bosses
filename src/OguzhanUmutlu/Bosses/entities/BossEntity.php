@@ -57,17 +57,19 @@ abstract class BossEntity extends Living {
     }
     protected function initEntity(): void {
         if($this->namedtag->hasTag("Health", FloatTag::class))
-            $this->setHealth($this->namedtag->getFloat("Health"));
+            $this->setHealth($this->namedtag->getFloat("Health", 1));
         if($this->namedtag->hasTag("MaxHealth", FloatTag::class))
-            $this->setMaxHealth($this->namedtag->getFloat("MaxHealth"));
+            $this->setMaxHealth($this->namedtag->getFloat("MaxHealth", 1));
         if($this->namedtag->hasTag("Scale", FloatTag::class))
-            $this->setScale($this->namedtag->getFloat("Scale"));
-        $this->attributes = BossAttributes::fromCompoundTag($this->namedtag);
+            $this->setScale($this->namedtag->getFloat("Scale", 1));
+        if(!$this->attributes)
+            $this->attributes = BossAttributes::fromCompoundTag($this->namedtag);
         parent::initEntity();
     }
     public function onCollideWithPlayer(Player $player): void {
         parent::onCollideWithPlayer($player);
-        $player->setMotion($this->getDirectionVectorCopy($this->lookAtCopyYaw($this, $player), $this->lookAtCopyPitch($this, $player))->multiply($this->getScale()));
+        if($player->distance($this) <= 1)
+            $player->setMotion($this->getDirectionVectorCopy($this->lookAtCopyYaw($this, $player), $this->lookAtCopyPitch($this, $player))->multiply($this->getScale()));
     }
 
     /**
@@ -170,13 +172,13 @@ abstract class BossEntity extends Living {
         parent::move($dx, $dy, $dz);
         $target = $this->getTargetBlock(2);
         if(is_null($target)) return;
-        if($target->collidesWithBB($this->boundingBox) && $this->attributes->canClimb || (!empty(array_filter($this->level->getCollisionBlocks($this->getBoundingBox()), function($block){return $block instanceof Liquid;})) && $this->attributes->canSwim))
+        if(($target->collidesWithBB($this->boundingBox) && $this->attributes->canClimb) || (!empty(array_filter($this->level->getCollisionBlocks($this->getBoundingBox()), function($block){return $block instanceof Liquid;})) && $this->attributes->canSwim))
             $this->setMotion(new Vector3(0, 0.2));
     }
     public function recalculateTargetEntity(): void {
         foreach($this->getViewers() as $player)
             if(!$player->isClosed() && !$player->isCreative() && !$player->isSpectator() && $player->distance($player) <= $this->attributes->visionReach && !$this->getTargetBlock($this->attributes->visionReach) instanceof Solid)
-                if(!$this->targetEntity instanceof Player || $this->targetEntity->isClosed() || $this->targetEntity->distance($this->asVector3()) > $player->distance($this->asVector3())) {
+                if($this->targetEntity->isClosed() || $this->targetEntity->distance($this->asVector3()) > $player->distance($this->asVector3())) {
                     if($this->attributes->isAlwaysAggressive) {
                         $this->targetEntity = $player;
                     } else if($this->attributes->eyeAggressive) {
