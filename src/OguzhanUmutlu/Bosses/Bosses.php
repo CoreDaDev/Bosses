@@ -145,7 +145,7 @@ class Bosses extends PluginBase {
             }
         foreach(self::$config->getNested("bosses", []) as $boss) {
             $boss["isMinion"] = false;
-            $attributes = BossAttributes::fromArray($boss);
+            $attributes = BossAttributes::fromArray($boss["attributes"]);
             if(!$this->getServer()->isLevelLoaded($boss["position"]["level"]))
                 $this->getServer()->loadLevel($boss["position"]["level"]);
             if($this->getServer()->getLevelByName($boss["position"]["level"]) instanceof Level)

@@ -203,6 +203,8 @@ abstract class BossEntity extends Living {
         }
         parent::attack($source);
         if(!$source->isCancelled() && $source instanceof EntityDamageByEntityEvent && ($p = $source->getDamager()) && $p instanceof Player) {
+            if(!isset($this->damages[$p->getName()]))
+                $this->damages[$p->getName()] = 0;
             $this->damages[$p->getName()] += $source->getFinalDamage();
             $this->mostDamages = $this->damages;
             rsort($this->mostDamages);
