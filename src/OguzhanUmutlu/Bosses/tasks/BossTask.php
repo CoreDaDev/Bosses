@@ -13,7 +13,7 @@ use pocketmine\scheduler\Task;
 class BossTask extends Task {
     public $attributes;
     public $info = [];
-    public function __construct(BossAttributes $attributes, float $scale, float $health, float $maxHealth, string $name, Position $position, int $ticks) {
+    public function __construct(BossAttributes $attributes, float $scale, float $health, float $maxHealth, string $name, Position $position, int $ticks, ?BossEntity $entity, int $id) {
         $this->attributes = $attributes;
         $this->info = [
             "scale" => $scale,
@@ -21,7 +21,9 @@ class BossTask extends Task {
             "maxHealth" => $maxHealth,
             "name" => $name,
             "position" => $position,
-            "ticks" => $ticks
+            "ticks" => $ticks,
+            "entity" => $entity,
+            "id" => $id
         ];
         Bosses::$instance->getScheduler()->scheduleDelayedTask($this, $ticks);
     }
@@ -30,9 +32,14 @@ class BossTask extends Task {
      * @throws Exception
      */
     public function onRun(int $currentTick) {
+        if(!isset(Bosses::$config->getNested("bosses")[$this->info["id"]])) return;
         $attributes = $this->attributes;
         $entity = Entity::createEntity($this->info["name"], $this->info["position"]->level, Entity::createBaseNBT($this->info["position"]));
         if(!$entity instanceof BossEntity) throw new Exception(BossEntity::class." excepted ".get_class($entity) ." provided.");
+        $entity->isNew = true;
+        if(isset(Bosses::$instance->entities[$this->info["id"]]) && Bosses::$instance->entities[$this->info["id"]] instanceof BossEntity && !Bosses::$instance->entities[$this->info["id"]]->isClosed())
+            Bosses::$instance->entities[$this->info["id"]]->flagForDespawn();
+        Bosses::$instance->entities[$this->info["id"]] = $entity;
         $entity->attributes = $attributes;
         $entity->setScale($this->info["scale"]);
         $entity->setMaxHealth($this->info["maxHealth"]);
@@ -40,6 +47,9 @@ class BossTask extends Task {
         $entity->onDie[] = function() {
             Bosses::$instance->getScheduler()->scheduleDelayedTask($this, $this->info["ticks"]);
         };
-        $entity->spawnToAll();
+        if($this->info["entity"] instanceof BossEntity && !$this->info["entity"]->isClosed())
+            $this->info["entity"]->onDie[] = function() use ($entity) {
+                $entity->spawnToAll();
+            };
     }
 }

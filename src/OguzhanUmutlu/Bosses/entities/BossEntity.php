@@ -46,7 +46,7 @@ abstract class BossEntity extends Living {
     public $targetEntity = null;
     /*** @var BossEntity[] */
     protected $minions = [];
-    private $isNew = false;
+    public $isNew = false;
     private $damages = [];
     public function __construct(Level $level, CompoundTag $nbt, ?BossAttributes $attributes = null) {
         $this->attributes = $attributes ?? new BossAttributes();
@@ -74,7 +74,7 @@ abstract class BossEntity extends Living {
         }
         if($this->attributes->isAlwaysAggressive)
             $this->isAggressive = true;
-        if(!$this->isNew && $this->attributes->isMinion)
+        if(!$this->isNew)
             $this->flagForDespawn();
         if($this->isClosed())
             return false;
@@ -174,6 +174,11 @@ abstract class BossEntity extends Living {
                             $this->targetEntity = $player;
                     }
                 }
+    }
+
+    /*** @param BossAttributes|null $attributes */
+    public function setAttributes(?BossAttributes $attributes): void {
+        $this->attributes = $attributes;
     }
     public $onDamage = [];
     public function attack(EntityDamageEvent $source): void {
@@ -323,7 +328,9 @@ abstract class BossEntity extends Living {
     }
     public $onDie = [];
     public $mostDamages = [];
+    public $isKilled = false;
     public function kill(): void {
+        $this->isKilled = true;
         $this->setHealth(0);
         $this->scheduleUpdate();
         $this->startDeathAnimation();
@@ -342,5 +349,14 @@ abstract class BossEntity extends Living {
             $this->level->dropItem($this, $drop);
         foreach($this->onDie as $die)
             $die();
+    }
+    public function flagForDespawn(): void {
+        if(!$this->isKilled)
+            foreach($this->onDie as $die)
+                $die();
+        parent::flagForDespawn();
+    }
+    public function setNameTag(string $name): void {
+        parent::setNameTag(str_replace("\\n", "\n", $name));
     }
 }
