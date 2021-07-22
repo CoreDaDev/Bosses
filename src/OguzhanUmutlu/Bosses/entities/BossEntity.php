@@ -74,6 +74,8 @@ abstract class BossEntity extends Living {
      * @throws Exception
      */
     public function onUpdate(int $currentTick): bool {
+        if(!$this->isSpawned)
+            return false;
         if(!$this->attributes instanceof BossAttributes) {
             $this->attributes = new BossAttributes();
             $this->saveAttributes();
@@ -94,8 +96,11 @@ abstract class BossEntity extends Living {
         }
         if($this->isAggressive && $this->targetEntity instanceof Player) {
             if(!$this->attributes->canShoot)
-                if(random_int(0, 100) <= $this->attributes->hitChance)
+                if(random_int(0, 100) <= $this->attributes->hitChance) {
                     $this->targetEntity->attack(new EntityDamageEvent($this, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $this->attributes->damageAmount));
+                    $this->targetEntity->setMotion($this->targetEntity->getMotion()->add($this->attributes->hitMotionX, $this->attributes->hitMotionY, $this->attributes->hitMotionZ));
+                    $this->targetEntity->setMotion($this->targetEntity->getMotion()->add($this->getDirectionVectorCopy($this->lookAtCopyYaw($this->targetEntity), $this->lookAtCopyPitch($this->targetEntity))->multiply($this->attributes->hitMotion)));
+                }
             else {
                 $this->shootTicks++;
                 if($this->shootTicks >= 35) {
@@ -121,8 +126,6 @@ abstract class BossEntity extends Living {
                     }
                 }
             }
-            $this->targetEntity->setMotion($this->targetEntity->getMotion()->add($this->attributes->hitMotionX, $this->attributes->hitMotionY, $this->attributes->hitMotionZ));
-            $this->targetEntity->setMotion($this->targetEntity->getMotion()->add($this->getDirectionVectorCopy($this->lookAtCopyYaw($this->targetEntity), $this->lookAtCopyPitch($this->targetEntity))->multiply($this->attributes->hitMotion)));
         }
         $this->lifeTicks++;
         $this->targetTicks++;
@@ -363,5 +366,10 @@ abstract class BossEntity extends Living {
     }
     public function setNameTag(string $name): void {
         parent::setNameTag(str_replace("\\n", "\n", $name));
+    }
+    protected $isSpawned = false;
+    public function spawnToAll(): void {
+        $this->isSpawned = true;
+        parent::spawnToAll();
     }
 }

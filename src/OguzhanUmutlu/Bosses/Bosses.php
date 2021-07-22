@@ -283,7 +283,7 @@ class Bosses extends PluginBase {
                         $player->sendForm(new MenuForm(
                             "Boss Menu > Manage existing Boss",
                             "Select a boss:",
-                            array_map(function($n){return $n["nametag"];}, $bosses),
+                            array_map(function($n){return new MenuOption($n["nametag"]);}, $bosses),
                             function(Player $player, int $i) use ($bosses): void {
                                 $boss = $bosses[$i];
                                 $inc = false;
