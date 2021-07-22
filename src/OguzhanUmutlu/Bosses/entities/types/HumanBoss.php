@@ -6,6 +6,7 @@ use InvalidStateException;
 use OguzhanUmutlu\Bosses\entities\BossAttributes;
 use OguzhanUmutlu\Bosses\entities\BossEntity;
 use pocketmine\entity\Skin;
+use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\nbt\tag\ByteArrayTag;
 use pocketmine\nbt\tag\CompoundTag;
@@ -94,15 +95,10 @@ class HumanBoss extends BossEntity {
     }
     protected function sendSpawnPacket(Player $player) : void{
         $this->skin->validate();
-
-        if(!($this instanceof Player)){
-            /* we don't use Server->updatePlayerListData() because that uses batches, which could cause race conditions in async compression mode */
-            $pk = new PlayerListPacket();
-            $pk->type = PlayerListPacket::TYPE_ADD;
-            $pk->entries = [PlayerListEntry::createAdditionEntry($this->uuid, $this->id, $this->getName(), SkinAdapterSingleton::get()->toSkinData($this->skin))];
-            $player->dataPacket($pk);
-        }
-
+        $pk = new PlayerListPacket();
+        $pk->type = PlayerListPacket::TYPE_ADD;
+        $pk->entries = [PlayerListEntry::createAdditionEntry($this->uuid, $this->id, $this->getName(), SkinAdapterSingleton::get()->toSkinData($this->skin))];
+        $player->dataPacket($pk);
         $pk = new AddPlayerPacket();
         $pk->uuid = $this->getUniqueId();
         $pk->username = $this->getName();
@@ -111,7 +107,7 @@ class HumanBoss extends BossEntity {
         $pk->motion = $this->getMotion();
         $pk->yaw = $this->yaw;
         $pk->pitch = $this->pitch;
-        $pk->item = ItemStackWrapper::legacy($this->getInventory()->getItemInHand());
+        $pk->item = ItemStackWrapper::legacy(Item::get(0));
         $pk->metadata = $this->propertyManager->getAll();
         $player->dataPacket($pk);
         $this->sendData($player, [self::DATA_NAMETAG => [self::DATA_TYPE_STRING, $this->getNameTag()]]);

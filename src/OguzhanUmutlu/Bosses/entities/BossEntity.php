@@ -203,15 +203,12 @@ abstract class BossEntity extends Living {
     }
     public function saveNBT(): void {
         $this->saveAttributes();
-        if(!($this instanceof Player)){
-            $this->namedtag->setString("id", $this->getSaveId(), true);
-            if($this->getNameTag() !== ""){
-                $this->namedtag->setString("CustomName", $this->getNameTag());
-                $this->namedtag->setByte("CustomNameVisible", $this->isNameTagVisible() ? 1 : 0);
-            }else{
-                $this->namedtag->removeTag("CustomName", "CustomNameVisible");
-            }
-        }
+        $this->namedtag->setString("id", $this->getSaveId(), true);
+        if($this->getNameTag() !== "") {
+            $this->namedtag->setString("CustomName", $this->getNameTag());
+            $this->namedtag->setByte("CustomNameVisible", $this->isNameTagVisible() ? 1 : 0);
+        } else
+            $this->namedtag->removeTag("CustomName", "CustomNameVisible");
         $this->namedtag->setTag(new ListTag("Pos", [
             new DoubleTag("", $this->x),
             new DoubleTag("", $this->y),
