@@ -231,7 +231,7 @@ class Bosses extends PluginBase {
                                     "drops" => [],
                                     "minionDrops" => []
                                 ]);
-                                $entity = Entity::createEntity(self::$bossSaves[array_keys(self::$bossSaves)[$response->getInt("type")]], $player->level, Entity::createBaseNBT($player));
+                                $entity = Entity::createEntity(array_keys(self::$bossSaves)[$response->getInt("type")], $player->level, Entity::createBaseNBT($player));
                                 if(!$entity instanceof BossEntity) return;
                                 $entity->isNew = true;
                                 $id = floor(microtime(true));
