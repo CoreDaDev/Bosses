@@ -2,6 +2,7 @@
 
 namespace OguzhanUmutlu\Bosses\entities;
 
+use Exception;
 use OguzhanUmutlu\Bosses\events\boss\BossDamageEvent;
 use OguzhanUmutlu\Bosses\events\boss\BossDeathEvent;
 use OguzhanUmutlu\Bosses\events\boss\BossShootEvent;
@@ -69,6 +70,9 @@ abstract class BossEntity extends Living {
         $player->setMotion($this->getDirectionVectorCopy($this->lookAtCopyYaw($this, $player), $this->lookAtCopyPitch($this, $player))->multiply($this->getScale()));
     }
 
+    /**
+     * @throws Exception
+     */
     public function onUpdate(int $currentTick): bool {
         if(!$this->attributes instanceof BossAttributes) {
             $this->attributes = new BossAttributes();
@@ -90,7 +94,8 @@ abstract class BossEntity extends Living {
         }
         if($this->isAggressive && $this->targetEntity instanceof Player) {
             if(!$this->attributes->canShoot)
-                $this->targetEntity->attack(new EntityDamageEvent($this, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $this->attributes->damageAmount));
+                if(random_int(0, 100) <= $this->attributes->hitChance)
+                    $this->targetEntity->attack(new EntityDamageEvent($this, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $this->attributes->damageAmount));
             else {
                 $this->shootTicks++;
                 if($this->shootTicks >= 35) {

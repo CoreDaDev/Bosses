@@ -191,7 +191,7 @@ class Bosses extends PluginBase {
                                 new Input("speed", "Speed", "1", "1"),
                                 new Toggle("canclimb", "Can climb"),
                                 new Toggle("canswim", "Can swim"),
-                                new StepSlider("hitchance", "Hit chance", range(0, 100)),
+                                new StepSlider("hitchance", "Hit chance", array_map(function($n){return (string)$n;}, range(0, 100))),
                                 new Toggle("falldamage", "Fall damage", true),
                                 new Toggle("canspawnminions", "Can spawn minions"),
                                 new Input("visionreach", "How far can boss see players from?", "10", "10"),
