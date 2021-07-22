@@ -48,6 +48,8 @@ abstract class BossEntity extends Living {
     protected $minions = [];
     public $isNew = false;
     private $damages = [];
+    public $width = 0.6;
+    public $height = 1.8;
     public function __construct(Level $level, CompoundTag $nbt, ?BossAttributes $attributes = null) {
         $this->attributes = $attributes ?? new BossAttributes();
         parent::__construct($level, $nbt);
